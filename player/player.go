@@ -5,12 +5,13 @@ import "fmt"
 type Player struct {
 	name    string
 	hand    []string
-	balance float32
+	balance float64
 	wins    int
 	defeats int
 }
 
 type PlayerType interface {
+	New(name string, hand []string, balance float64, wins int, defeats int) (Player, error)
 	GetName() (string, error)
 	GetHand() ([]string, error)
 	AddCardToHand(card string) (bool, error)
@@ -25,6 +26,18 @@ type PlayerType interface {
 	ShowHand()
 }
 
+func (p Player) New(name string, hand []string, balance float64, wins int, defeats int) (Player, error) {
+	newPlayer := Player{
+		name:    name,
+		hand:    hand,
+		balance: balance,
+		wins:    wins,
+		defeats: defeats,
+	}
+
+	return newPlayer, nil
+}
+
 func (p Player) GetName() (string, error) {
 	return p.name, nil
 }
@@ -33,26 +46,26 @@ func (p Player) GetHand() ([]string, error) {
 	return p.hand, nil
 }
 
-func (p Player) AddCardToHand(card string) (bool, error) {
+func (p *Player) AddCardToHand(card string) (bool, error) {
 	p.hand = append(p.hand, card)
 	return true, nil
 }
 
-func (p Player) ClearHand() (bool, error) {
+func (p *Player) ClearHand() (bool, error) {
 	p.hand = make([]string, 1)
 	return true, nil
 }
 
-func (p Player) GetBalance() (float32, error) {
+func (p Player) GetBalance() (float64, error) {
 	return p.balance, nil
 }
 
-func (p Player) Deposit(value float32) (bool, error) {
+func (p *Player) Deposit(value float64) (bool, error) {
 	p.balance += value
 	return true, nil
 }
 
-func (p Player) Withdraw(value float32) (bool, error) {
+func (p *Player) Withdraw(value float64) (bool, error) {
 	p.balance -= value
 	return true, nil
 }
@@ -61,7 +74,7 @@ func (p Player) GetWins() (int, error) {
 	return p.wins, nil
 }
 
-func (p Player) addWin() (bool, error) {
+func (p *Player) addWin() (bool, error) {
 	p.wins += 1
 	return true, nil
 }
@@ -71,7 +84,7 @@ func (p Player) GetDefeats() (int, error) {
 
 }
 
-func (p Player) AddDefeats() (bool, error) {
+func (p *Player) AddDefeats() (bool, error) {
 	p.defeats += 1
 	return true, nil
 }
