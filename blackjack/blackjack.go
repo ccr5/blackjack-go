@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
+	"blackjack-go/deck"
 	"blackjack-go/player"
 )
 
@@ -31,9 +33,7 @@ func (b Blackjack) Run() {
 		return
 	}
 
-	fmt.Println(balance)
-
-	balance_in_float, err := strconv.ParseFloat(balance, 32)
+	balance_in_float, err := strconv.ParseFloat(strings.TrimSpace(balance), 64)
 	if err != nil {
 		fmt.Println("Error reading input:", err)
 		return
@@ -55,4 +55,37 @@ func (b Blackjack) Run() {
 
 	fmt.Println("So let's play? ")
 	fmt.Print("\x1B[2J\x1B[1;1H")
+
+	deck := deck.Deck{}
+	game := false
+
+	for i := 0; ; i++ {
+		if !game {
+			human.ClearHand()
+			computer.ClearHand()
+			deck.CreateDeck()
+			deck.ShuffleDeck()
+			fmt.Print("\x1B[2J\x1B[1;1H")
+
+			check_balance_player, _ := b.checkBalance(human.Player)
+			check_balance_computer, _ := b.checkBalance(computer.Player)
+
+			if check_balance_player || check_balance_computer {
+				game = true
+				continue
+			}
+
+			fmt.Print("\x1B[2J\x1B[1;1H")
+		}
+	}
+}
+
+func (b Blackjack) checkBalance(player player.Player) (bool, error) {
+	if balance, err := player.GetBalance(); err != nil && balance == 0.0 {
+		name, _ := player.GetName()
+		fmt.Println("{}, you haven't balance", name)
+		return true, nil
+	} else {
+		return false, nil
+	}
 }
