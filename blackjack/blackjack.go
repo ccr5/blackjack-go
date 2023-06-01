@@ -59,7 +59,7 @@ func (b Blackjack) Run() {
 	deck := deck.Deck{}
 	game := false
 
-	for i := 0; ; i++ {
+	for {
 		if !game {
 			human.ClearHand()
 			computer.ClearHand()
@@ -75,7 +75,16 @@ func (b Blackjack) Run() {
 				continue
 			}
 
-			fmt.Print("\x1B[2J\x1B[1;1H")
+			bets, err := b.bet(&human.Player, &computer.Player)
+			if err != nil {
+				panic("Bet error")
+			}
+
+			fmt.Print(bets)
+			// fmt.Print("\x1B[2J\x1B[1;1H")
+			break
+		} else {
+			break
 		}
 	}
 }
@@ -88,4 +97,51 @@ func (b Blackjack) checkBalance(player player.Player) (bool, error) {
 	} else {
 		return false, nil
 	}
+}
+
+func (b Blackjack) bet(player *player.Player, computer *player.Player) (Bets, error) {
+
+	reader := bufio.NewReader(os.Stdin)
+	bet_player := 0.0
+	bet_computer := 0.0
+
+	for {
+		if bet_player <= 0.0 {
+			fmt.Print("Insert how many will you bet in this match: ")
+			capture_bet_player, err := reader.ReadString('\n')
+			if err != nil {
+				fmt.Println("Error reading input:", err)
+				return Bets{}, nil
+			}
+
+			capture_bet_player_float, _ := strconv.ParseFloat(strings.TrimSpace(capture_bet_player), 64)
+			bet_player = capture_bet_player_float
+		} else {
+			break
+		}
+	}
+
+	_, err := player.Withdraw(bet_player)
+	if err != nil {
+		panic("Er")
+	}
+
+	if balance, _ := computer.GetBalance(); bet_player > balance {
+		name, _ := player.GetName()
+		fmt.Printf("%s, I haven't this money, I'll give all win, right?", name)
+		bet_computer, _ := computer.GetBalance()
+		_, err := computer.Withdraw(bet_computer)
+		if err != nil {
+			panic("Er")
+		}
+
+	} else {
+		bet_computer = bet_player
+		_, err := computer.Withdraw(bet_player)
+		if err != nil {
+			panic("Er")
+		}
+	}
+
+	return Bets{player_bet_amount: bet_player, computer_bet_amount: bet_computer}, nil
 }
