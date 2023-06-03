@@ -33,14 +33,21 @@ func (b Blackjack) Run() {
 		return
 	}
 
-	balance_in_float, err := strconv.ParseFloat(strings.TrimSpace(balance), 64)
+	balanceInFloat, err := strconv.ParseFloat(strings.TrimSpace(balance), 64)
 	if err != nil {
 		fmt.Println("Error reading input:", err)
 		return
 	}
 
-	human := player.Human{Player: player.Player{}}
-	human.Player.New(name, make([]deck.Card, 0), balance_in_float, 0, 0)
+	human := player.Human{
+		Player: player.Player{
+			Name:    name,
+			Hand:    make([]deck.Card, 0),
+			Balance: balanceInFloat,
+			Wins:    0,
+			Defeats: 0,
+		},
+	}
 
 	fmt.Print("Could you choose a name for a bot? ")
 	computerName, err := reader.ReadString('\n')
@@ -49,8 +56,15 @@ func (b Blackjack) Run() {
 		return
 	}
 
-	computer := player.Bot{Player: player.Player{}}
-	computer.Player.New(computerName, make([]deck.Card, 0), balance_in_float, 0, 0)
+	computer := player.Bot{
+		Player: player.Player{
+			Name:    computerName,
+			Hand:    make([]deck.Card, 0),
+			Balance: balanceInFloat,
+			Wins:    0,
+			Defeats: 0,
+		},
+	}
 	computer.WelcomeMessage()
 
 	fmt.Println("So let's play? ")
@@ -67,10 +81,10 @@ func (b Blackjack) Run() {
 			deck.ShuffleDeck()
 			fmt.Print("\x1B[2J\x1B[1;1H")
 
-			check_balance_player, _ := b.checkBalance(human.Player)
-			check_balance_computer, _ := b.checkBalance(computer.Player)
+			checkBalancePlayer, _ := b.checkBalance(human.Player)
+			checkBalanceComputer, _ := b.checkBalance(computer.Player)
 
-			if check_balance_player || check_balance_computer {
+			if checkBalancePlayer || checkBalanceComputer {
 				game = true
 				continue
 			}
@@ -80,55 +94,76 @@ func (b Blackjack) Run() {
 				panic("Bet error")
 			}
 
-			ask_player := false
+			askPlayer := false
 			for {
 
-				if ask_player {
+				if askPlayer {
 					break
 				}
 
-				if hand, err := human.GetHand(); err == nil && len(hand) == 0 {
+				if len(human.Hand) == 0 {
 					fmt.Println("You don't have any card in your hand")
 				} else {
 					human.ShowHand()
 				}
 
 				fmt.Print("Would you like one more card? ")
-				more_card, err := reader.ReadString('\n')
+				moreCard, err := reader.ReadString('\n')
 				if err != nil {
 					panic("Error to check more card")
 				}
 
-				more_card_upper := strings.ToUpper(strings.TrimSpace(more_card))
+				moreCardUpper := strings.ToUpper(strings.TrimSpace(moreCard))
 
-				if more_card_upper == "Y" {
+				if moreCardUpper == "Y" {
 					card, _ := deck.GetCard()
 					human.AddCardToHand(card)
 				} else {
-					ask_player = true
+					askPlayer = true
 				}
 			}
 
-			bot_player := false
+			botPlayer := false
 			for {
 
-				if bot_player {
+				if botPlayer {
 					break
 				}
 
-				bot_action, _ := computer.PlayGame()
+				botAction, _ := computer.PlayGame()
 
-				if bot_action {
+				if botAction {
 					card, _ := deck.GetCard()
 					computer.AddCardToHand(card)
 				} else {
-					bot_player = true
+					botPlayer = true
 				}
 			}
 
-			fmt.Print(bets)
-			// fmt.Print("\x1B[2J\x1B[1;1H")
-			break
+			winner, verifyH1, verifyH2 := CheckWinner(human.Hand, computer.Hand)
+
+			b.checkResult(
+				&human.Player,
+				&computer.Player,
+				bets,
+				winner,
+				verifyH1,
+				verifyH2,
+			)
+
+			human.ShowInfo()
+			human.ShowHand()
+
+			computer.ShowInfo()
+			computer.ShowHand()
+
+			fmt.Println("Do you wanna play again (Y/N): ")
+			choice, err := reader.ReadString('\n')
+			if err != nil {
+				panic(err)
+			}
+
+			game = b.checkPlayAgain(strings.TrimSpace(choice))
 		} else {
 			break
 		}
@@ -136,9 +171,8 @@ func (b Blackjack) Run() {
 }
 
 func (b Blackjack) checkBalance(player player.Player) (bool, error) {
-	if balance, err := player.GetBalance(); err != nil && balance == 0.0 {
-		name, _ := player.GetName()
-		fmt.Println("{}, you haven't balance", name)
+	if player.Balance == 0.0 {
+		fmt.Printf("%v, you haven't balance\n", player.Name)
 		return true, nil
 	} else {
 		return false, nil
@@ -172,11 +206,9 @@ func (b Blackjack) bet(player *player.Player, computer *player.Player) (Bets, er
 		panic("Er")
 	}
 
-	if balance, _ := computer.GetBalance(); bet_player > balance {
-		name, _ := player.GetName()
-		fmt.Printf("%s, I haven't this money, I'll give all win, right?", name)
-		bet_computer, _ := computer.GetBalance()
-		_, err := computer.Withdraw(bet_computer)
+	if bet_player > computer.Balance {
+		fmt.Printf("%v, I haven't this money, I'll give all win, right? \n", player.Name)
+		_, err := computer.Withdraw(computer.Balance)
 		if err != nil {
 			panic("Er")
 		}
@@ -189,5 +221,48 @@ func (b Blackjack) bet(player *player.Player, computer *player.Player) (Bets, er
 		}
 	}
 
-	return Bets{player_bet_amount: bet_player, computer_bet_amount: bet_computer}, nil
+	return Bets{PlayerBetAmount: bet_player, ComputerBetAmount: bet_computer}, nil
+}
+
+func (b Blackjack) checkResult(
+	player *player.Player,
+	computer *player.Player,
+	bets Bets,
+	winner string,
+	total_player int,
+	total_computer int,
+) {
+	if winner == "no win" {
+		fmt.Printf("no one win, you guys have more than 21!")
+		fmt.Printf("%v: %v \t%v: %v\n", player.Name, total_player, computer.Name, total_computer)
+		player.Deposit(bets.PlayerBetAmount)
+		computer.Deposit(bets.ComputerBetAmount)
+	} else if winner == "draw" {
+		fmt.Printf("it's a draw O.o")
+		fmt.Printf("%v: %v \t%v: %v\n", player.Name, total_player, computer.Name, total_computer)
+		player.Deposit(bets.PlayerBetAmount)
+		computer.Deposit(bets.ComputerBetAmount)
+		player.AddWin()
+		computer.AddWin()
+	} else if winner == "h1" {
+		fmt.Printf("%v win !!\n", player.Name)
+		fmt.Printf("%v: %v \t%v: %v\n", player.Name, total_player, computer.Name, total_computer)
+		player.Deposit(bets.PlayerBetAmount + bets.ComputerBetAmount)
+		player.AddWin()
+		computer.AddDefeats()
+	} else {
+		fmt.Printf("%v win !!\n", computer.Name)
+		fmt.Printf("%v: %v \t%v: %v\n", player.Name, total_player, computer.Name, total_computer)
+		computer.Deposit(bets.PlayerBetAmount + bets.ComputerBetAmount)
+		computer.AddWin()
+		player.AddDefeats()
+	}
+}
+
+func (b Blackjack) checkPlayAgain(choice string) bool {
+	if strings.ToUpper(choice) == "Y" {
+		return false
+	} else {
+		return true
+	}
 }

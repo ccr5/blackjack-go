@@ -34,10 +34,10 @@ func (d *Deck) CreateDeck() (bool, error) {
 	}
 
 	for i := 0; i < 13; i++ {
-		d.deck = append(d.deck, Card{name: names[i], height: values[i], ticker: tickers[i]})
-		d.deck = append(d.deck, Card{name: names[i], height: values[i], ticker: tickers[i]})
-		d.deck = append(d.deck, Card{name: names[i], height: values[i], ticker: tickers[i]})
-		d.deck = append(d.deck, Card{name: names[i], height: values[i], ticker: tickers[i]})
+		d.deck = append(d.deck, Card{Name: names[i], Height: values[i], Ticker: tickers[i]})
+		d.deck = append(d.deck, Card{Name: names[i], Height: values[i], Ticker: tickers[i]})
+		d.deck = append(d.deck, Card{Name: names[i], Height: values[i], Ticker: tickers[i]})
+		d.deck = append(d.deck, Card{Name: names[i], Height: values[i], Ticker: tickers[i]})
 	}
 
 	return true, nil

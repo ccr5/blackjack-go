@@ -2,97 +2,69 @@ package player
 
 import (
 	"blackjack-go/deck"
+	"fmt"
 )
 
 type Player struct {
-	name    string
-	hand    []deck.Card
-	balance float64
-	wins    int
-	defeats int
+	Name    string
+	Hand    []deck.Card
+	Balance float64
+	Wins    int
+	Defeats int
 }
 
 type PlayerType interface {
-	New(name string, hand []string, balance float64, wins int, defeats int) (Player, error)
-	GetName() (string, error)
-	GetHand() ([]string, error)
 	AddCardToHand(card string) (bool, error)
 	ClearHand() (bool, error)
-	GetBalance() (float32, error)
 	Deposit(value float32) (bool, error)
 	Withdraw(value float32) (bool, error)
-	GetWins() (int, error)
 	addWin() (bool, error)
-	GetDefeats() (int, error)
 	AddDefeats() (bool, error)
 	ShowHand()
 }
 
-func (p Player) New(name string, hand []deck.Card, balance float64, wins int, defeats int) (Player, error) {
-	newPlayer := Player{
-		name:    name,
-		hand:    hand,
-		balance: balance,
-		wins:    wins,
-		defeats: defeats,
-	}
-
-	return newPlayer, nil
-}
-
-func (p Player) GetName() (string, error) {
-	return p.name, nil
-}
-
-func (p Player) GetHand() ([]deck.Card, error) {
-	return p.hand, nil
-}
-
 func (p *Player) AddCardToHand(card deck.Card) (bool, error) {
-	p.hand = append(p.hand, card)
+	p.Hand = append(p.Hand, card)
 	return true, nil
 }
 
 func (p *Player) ClearHand() (bool, error) {
-	p.hand = make([]deck.Card, 1)
+	p.Hand = make([]deck.Card, 0)
 	return true, nil
 }
 
-func (p Player) GetBalance() (float64, error) {
-	return p.balance, nil
-}
-
 func (p *Player) Deposit(value float64) (bool, error) {
-	p.balance += value
+	p.Balance += value
 	return true, nil
 }
 
 func (p *Player) Withdraw(value float64) (bool, error) {
-	p.balance -= value
+	p.Balance -= value
 	return true, nil
 }
 
-func (p Player) GetWins() (int, error) {
-	return p.wins, nil
-}
-
-func (p *Player) addWin() (bool, error) {
-	p.wins += 1
+func (p *Player) AddWin() (bool, error) {
+	p.Wins += 1
 	return true, nil
-}
-
-func (p Player) GetDefeats() (int, error) {
-	return p.defeats, nil
-
 }
 
 func (p *Player) AddDefeats() (bool, error) {
-	p.defeats += 1
+	p.Defeats += 1
 	return true, nil
 }
 
 func (p Player) ShowHand() {
-	for i := 0; i < len(p.hand); i++ {
-		p.hand[i].ShowCard()
+	for i := 0; i < len(p.Hand); i++ {
+		p.Hand[i].ShowCard()
+	}
+}
+
+func (p Player) ShowInfo() {
+	if p.Balance > 0 {
+		fmt.Printf("%v, your balance is: %v\n", p.Name, p.Balance)
+	} else if p.Balance == 0 {
+		fmt.Printf("%v, you haven't balance, thanks for play BlackJack\n", p.Name)
+	} else {
+		fmt.Printf("%v, you're owe %v\n", p.Name, p.Balance)
 	}
 }

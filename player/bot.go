@@ -7,27 +7,21 @@ type Bot struct {
 }
 
 func (b Bot) WelcomeMessage() {
-	name, _ := b.GetName()
-	fmt.Println("Hi o/ \nMy name is {} and I'll play with you", name)
+	fmt.Printf("Hi o/ \nMy name is %v and I'll play with you\n", b.Name)
 	fmt.Println("Good luck!")
 	fmt.Println("Aaah, I have the same balance for a fair play :)")
 }
 
 func (b Bot) PlayGame() (bool, error) {
 
-	if hand, err := b.GetHand(); err == nil && len(hand) == 0 {
-		fmt.Println("Hmmmm")
+	if len(b.Hand) == 0 {
 		return true, nil
 	} else {
 		count_a := 0
 		sum_hand := 0
-		hand, err := b.GetHand()
-		if err == nil {
-			return false, err
-		}
 
-		for i := 0; i < len(hand); i++ {
-			if ticker, _ := hand[i].GetTicker(); ticker == "A" {
+		for _, card := range b.Hand {
+			if card.Ticker == "A\n" {
 				count_a += 1
 
 				if count_a >= 1 && sum_hand > 10 {
@@ -37,8 +31,7 @@ func (b Bot) PlayGame() (bool, error) {
 				}
 
 			} else {
-				height, _ := hand[i].GetHeight()
-				sum_hand += height[0]
+				sum_hand += card.Height[0]
 			}
 		}
 
