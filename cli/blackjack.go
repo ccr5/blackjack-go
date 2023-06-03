@@ -1,4 +1,4 @@
-package blackjack
+package main
 
 import (
 	"bufio"
@@ -6,9 +6,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	"blackjack-go/deck"
-	"blackjack-go/player"
 )
 
 type Blackjack struct{}
@@ -39,10 +36,10 @@ func (b Blackjack) Run() {
 		return
 	}
 
-	human := player.Human{
-		Player: player.Player{
+	human := Human{
+		Player: Player{
 			Name:    name,
-			Hand:    make([]deck.Card, 0),
+			Hand:    make([]Card, 0),
 			Balance: balanceInFloat,
 			Wins:    0,
 			Defeats: 0,
@@ -56,10 +53,10 @@ func (b Blackjack) Run() {
 		return
 	}
 
-	computer := player.Bot{
-		Player: player.Player{
+	computer := Bot{
+		Player: Player{
 			Name:    computerName,
-			Hand:    make([]deck.Card, 0),
+			Hand:    make([]Card, 0),
 			Balance: balanceInFloat,
 			Wins:    0,
 			Defeats: 0,
@@ -70,7 +67,7 @@ func (b Blackjack) Run() {
 	fmt.Println("So let's play? ")
 	fmt.Print("\x1B[2J\x1B[1;1H")
 
-	deck := deck.Deck{}
+	deck := Deck{}
 	game := false
 
 	for {
@@ -170,7 +167,7 @@ func (b Blackjack) Run() {
 	}
 }
 
-func (b Blackjack) checkBalance(player player.Player) (bool, error) {
+func (b Blackjack) checkBalance(player Player) (bool, error) {
 	if player.Balance == 0.0 {
 		fmt.Printf("%v, you haven't balance\n", player.Name)
 		return true, nil
@@ -179,7 +176,7 @@ func (b Blackjack) checkBalance(player player.Player) (bool, error) {
 	}
 }
 
-func (b Blackjack) bet(player *player.Player, computer *player.Player) (Bets, error) {
+func (b Blackjack) bet(player *Player, computer *Player) (Bets, error) {
 
 	reader := bufio.NewReader(os.Stdin)
 	bet_player := 0.0
@@ -225,8 +222,8 @@ func (b Blackjack) bet(player *player.Player, computer *player.Player) (Bets, er
 }
 
 func (b Blackjack) checkResult(
-	player *player.Player,
-	computer *player.Player,
+	player *Player,
+	computer *Player,
 	bets Bets,
 	winner string,
 	total_player int,

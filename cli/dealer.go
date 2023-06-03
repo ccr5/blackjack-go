@@ -1,6 +1,4 @@
-package blackjack
-
-import "blackjack-go/deck"
+package main
 
 func checkAs(count_a, sum int) int {
 	new_sum := sum
@@ -14,7 +12,7 @@ func checkAs(count_a, sum int) int {
 	return new_sum
 }
 
-func CheckWinner(hand1, hand2 []deck.Card) (string, int, int) {
+func CheckWinner(hand1, hand2 []Card) (string, int, int) {
 	h1 := 0
 	h2 := 0
 	countH1 := 0
