@@ -40,7 +40,7 @@ func (b Blackjack) Run() {
 	}
 
 	human := player.Human{Player: player.Player{}}
-	human.Player.New(name, make([]string, 0), balance_in_float, 0, 0)
+	human.Player.New(name, make([]deck.Card, 0), balance_in_float, 0, 0)
 
 	fmt.Print("Could you choose a name for a bot? ")
 	computerName, err := reader.ReadString('\n')
@@ -50,7 +50,7 @@ func (b Blackjack) Run() {
 	}
 
 	computer := player.Bot{Player: player.Player{}}
-	computer.Player.New(computerName, make([]string, 0), balance_in_float, 0, 0)
+	computer.Player.New(computerName, make([]deck.Card, 0), balance_in_float, 0, 0)
 	computer.WelcomeMessage()
 
 	fmt.Println("So let's play? ")
@@ -78,6 +78,52 @@ func (b Blackjack) Run() {
 			bets, err := b.bet(&human.Player, &computer.Player)
 			if err != nil {
 				panic("Bet error")
+			}
+
+			ask_player := false
+			for {
+
+				if ask_player {
+					break
+				}
+
+				if hand, err := human.GetHand(); err == nil && len(hand) == 0 {
+					fmt.Println("You don't have any card in your hand")
+				} else {
+					human.ShowHand()
+				}
+
+				fmt.Print("Would you like one more card? ")
+				more_card, err := reader.ReadString('\n')
+				if err != nil {
+					panic("Error to check more card")
+				}
+
+				more_card_upper := strings.ToUpper(strings.TrimSpace(more_card))
+
+				if more_card_upper == "Y" {
+					card, _ := deck.GetCard()
+					human.AddCardToHand(card)
+				} else {
+					ask_player = true
+				}
+			}
+
+			bot_player := false
+			for {
+
+				if bot_player {
+					break
+				}
+
+				bot_action, _ := computer.PlayGame()
+
+				if bot_action {
+					card, _ := deck.GetCard()
+					computer.AddCardToHand(card)
+				} else {
+					bot_player = true
+				}
 			}
 
 			fmt.Print(bets)

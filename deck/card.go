@@ -35,13 +35,13 @@ func (c Card) ShowCard() {
 	if c.name == "Ten" {
 		fmt.Println("- - - -")
 		fmt.Println("|     |")
-		fmt.Println("| {}  |", c.ticker)
+		fmt.Printf("| %v  |\n", c.ticker)
 		fmt.Println("|     |")
 		fmt.Println("- - - -")
 	} else {
 		fmt.Println("- - - -")
 		fmt.Println("|     |")
-		fmt.Println("|  {}  |", c.ticker)
+		fmt.Printf("|  %v  |\n", c.ticker)
 		fmt.Println("|     |")
 		fmt.Println("- - - -")
 	}

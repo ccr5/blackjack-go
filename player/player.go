@@ -1,10 +1,12 @@
 package player
 
-import "fmt"
+import (
+	"blackjack-go/deck"
+)
 
 type Player struct {
 	name    string
-	hand    []string
+	hand    []deck.Card
 	balance float64
 	wins    int
 	defeats int
@@ -26,7 +28,7 @@ type PlayerType interface {
 	ShowHand()
 }
 
-func (p Player) New(name string, hand []string, balance float64, wins int, defeats int) (Player, error) {
+func (p Player) New(name string, hand []deck.Card, balance float64, wins int, defeats int) (Player, error) {
 	newPlayer := Player{
 		name:    name,
 		hand:    hand,
@@ -42,17 +44,17 @@ func (p Player) GetName() (string, error) {
 	return p.name, nil
 }
 
-func (p Player) GetHand() ([]string, error) {
+func (p Player) GetHand() ([]deck.Card, error) {
 	return p.hand, nil
 }
 
-func (p *Player) AddCardToHand(card string) (bool, error) {
+func (p *Player) AddCardToHand(card deck.Card) (bool, error) {
 	p.hand = append(p.hand, card)
 	return true, nil
 }
 
 func (p *Player) ClearHand() (bool, error) {
-	p.hand = make([]string, 1)
+	p.hand = make([]deck.Card, 1)
 	return true, nil
 }
 
@@ -91,6 +93,6 @@ func (p *Player) AddDefeats() (bool, error) {
 
 func (p Player) ShowHand() {
 	for i := 0; i < len(p.hand); i++ {
-		fmt.Print(p.hand[i])
+		p.hand[i].ShowCard()
 	}
 }
