@@ -112,9 +112,9 @@ func (b Blackjack) Run() {
 				panic("Error to check more card")
 			}
 
-			moreCardUpper := strings.ToUpper(strings.TrimSpace(moreCard))
+			moreCard = strings.ToUpper(strings.TrimSpace(moreCard))
 
-			if moreCardUpper == "Y" {
+			if moreCard == "Y" {
 				card, _ := deck.GetCard()
 				human.AddCardToHand(card)
 			} else {
