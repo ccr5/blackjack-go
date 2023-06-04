@@ -56,7 +56,7 @@
 
 This is my second project to improve my skils in go and a little project to have a fun. 
 I always use a game to learn a programming language and this time, my choice is a **blackjack game**.
-I translate it from my repository called blackjack, used to learn Python before.
+I translate it from my repository called blackjack, used to learn Python and Rust before.
 
 ### What is BlackJack game?
 BlackJack is a card game where who has a sum of cards equals 21 win.
@@ -83,7 +83,7 @@ To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
-* go ^1.26.0
+* go ^1.20.0
 
 ### Installation
 
