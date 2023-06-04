@@ -1,4 +1,4 @@
-package main
+package blackjack
 
 import (
 	"bufio"
@@ -6,6 +6,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/ccr5/blackjack-go/deck"
+	"github.com/ccr5/blackjack-go/player"
 )
 
 type Blackjack struct{}
@@ -36,10 +39,10 @@ func (b Blackjack) Run() {
 		return
 	}
 
-	human := Human{
-		Player: Player{
+	human := player.Human{
+		Player: player.Player{
 			Name:    name,
-			Hand:    make([]Card, 0),
+			Hand:    make([]deck.Card, 0),
 			Balance: balanceInFloat,
 			Wins:    0,
 			Defeats: 0,
@@ -53,10 +56,10 @@ func (b Blackjack) Run() {
 		return
 	}
 
-	computer := Bot{
-		Player: Player{
+	computer := player.Bot{
+		Player: player.Player{
 			Name:    computerName,
-			Hand:    make([]Card, 0),
+			Hand:    make([]deck.Card, 0),
 			Balance: balanceInFloat,
 			Wins:    0,
 			Defeats: 0,
@@ -67,107 +70,103 @@ func (b Blackjack) Run() {
 	fmt.Println("So let's play? ")
 	fmt.Print("\x1B[2J\x1B[1;1H")
 
-	deck := Deck{}
+	deck := deck.Deck{}
 	game := false
 
-	for {
-		if !game {
-			human.ClearHand()
-			computer.ClearHand()
-			deck.CreateDeck()
-			deck.ShuffleDeck()
-			fmt.Print("\x1B[2J\x1B[1;1H")
+	for !game {
+		human.ClearHand()
+		computer.ClearHand()
+		deck.CreateDeck()
+		deck.ShuffleDeck()
+		fmt.Print("\x1B[2J\x1B[1;1H")
 
-			checkBalancePlayer, _ := b.checkBalance(human.Player)
-			checkBalanceComputer, _ := b.checkBalance(computer.Player)
+		checkBalancePlayer, _ := b.checkBalance(human.Player)
+		checkBalanceComputer, _ := b.checkBalance(computer.Player)
 
-			if checkBalancePlayer || checkBalanceComputer {
-				game = true
-				continue
-			}
-
-			bets, err := b.bet(&human.Player, &computer.Player)
-			if err != nil {
-				panic("Bet error")
-			}
-
-			askPlayer := false
-			for {
-
-				if askPlayer {
-					break
-				}
-
-				if len(human.Hand) == 0 {
-					fmt.Println("You don't have any card in your hand")
-				} else {
-					human.ShowHand()
-				}
-
-				fmt.Print("Would you like one more card? ")
-				moreCard, err := reader.ReadString('\n')
-				if err != nil {
-					panic("Error to check more card")
-				}
-
-				moreCardUpper := strings.ToUpper(strings.TrimSpace(moreCard))
-
-				if moreCardUpper == "Y" {
-					card, _ := deck.GetCard()
-					human.AddCardToHand(card)
-				} else {
-					askPlayer = true
-				}
-			}
-
-			botPlayer := false
-			for {
-
-				if botPlayer {
-					break
-				}
-
-				botAction, _ := computer.PlayGame()
-
-				if botAction {
-					card, _ := deck.GetCard()
-					computer.AddCardToHand(card)
-				} else {
-					botPlayer = true
-				}
-			}
-
-			winner, verifyH1, verifyH2 := CheckWinner(human.Hand, computer.Hand)
-
-			b.checkResult(
-				&human.Player,
-				&computer.Player,
-				bets,
-				winner,
-				verifyH1,
-				verifyH2,
-			)
-
-			human.ShowInfo()
-			human.ShowHand()
-
-			computer.ShowInfo()
-			computer.ShowHand()
-
-			fmt.Println("Do you wanna play again (Y/N): ")
-			choice, err := reader.ReadString('\n')
-			if err != nil {
-				panic(err)
-			}
-
-			game = b.checkPlayAgain(strings.TrimSpace(choice))
-		} else {
-			break
+		if checkBalancePlayer || checkBalanceComputer {
+			game = true
+			continue
 		}
+
+		bets, err := b.bet(&human.Player, &computer.Player)
+		if err != nil {
+			panic("Bet error")
+		}
+
+		askPlayer := false
+		for {
+
+			if askPlayer {
+				break
+			}
+
+			if len(human.Hand) == 0 {
+				fmt.Println("You don't have any card in your hand")
+			} else {
+				human.ShowHand()
+			}
+
+			fmt.Print("Would you like one more card? ")
+			moreCard, err := reader.ReadString('\n')
+			if err != nil {
+				panic("Error to check more card")
+			}
+
+			moreCardUpper := strings.ToUpper(strings.TrimSpace(moreCard))
+
+			if moreCardUpper == "Y" {
+				card, _ := deck.GetCard()
+				human.AddCardToHand(card)
+			} else {
+				askPlayer = true
+			}
+		}
+
+		botPlayer := false
+		for {
+
+			if botPlayer {
+				break
+			}
+
+			botAction, _ := computer.PlayGame()
+
+			if botAction {
+				card, _ := deck.GetCard()
+				computer.AddCardToHand(card)
+			} else {
+				botPlayer = true
+			}
+		}
+
+		winner, verifyH1, verifyH2 := CheckWinner(human.Hand, computer.Hand)
+
+		b.checkResult(
+			&human.Player,
+			&computer.Player,
+			bets,
+			winner,
+			verifyH1,
+			verifyH2,
+		)
+
+		human.ShowInfo()
+		human.ShowHand()
+
+		computer.ShowInfo()
+		computer.ShowHand()
+
+		fmt.Println("Do you wanna play again (Y/N): ")
+		choice, err := reader.ReadString('\n')
+		if err != nil {
+			panic(err)
+		}
+
+		game = b.checkPlayAgain(strings.TrimSpace(choice))
 	}
 }
 
-func (b Blackjack) checkBalance(player Player) (bool, error) {
+func (b Blackjack) checkBalance(player player.Player) (bool, error) {
 	if player.Balance == 0.0 {
 		fmt.Printf("%v, you haven't balance\n", player.Name)
 		return true, nil
@@ -176,7 +175,7 @@ func (b Blackjack) checkBalance(player Player) (bool, error) {
 	}
 }
 
-func (b Blackjack) bet(player *Player, computer *Player) (Bets, error) {
+func (b Blackjack) bet(player *player.Player, computer *player.Player) (Bets, error) {
 
 	reader := bufio.NewReader(os.Stdin)
 	bet_player := 0.0
@@ -222,8 +221,8 @@ func (b Blackjack) bet(player *Player, computer *Player) (Bets, error) {
 }
 
 func (b Blackjack) checkResult(
-	player *Player,
-	computer *Player,
+	player *player.Player,
+	computer *player.Player,
 	bets Bets,
 	winner string,
 	total_player int,

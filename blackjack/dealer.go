@@ -1,18 +1,16 @@
-package main
+package blackjack
 
-func checkAs(count_a, sum int) int {
-	new_sum := sum
+import "github.com/ccr5/blackjack-go/deck"
 
-	if count_a >= 1 && sum > 10 {
-		new_sum += 1 * count_a
-	} else if count_a == 1 && sum <= 10 {
-		new_sum += 11
+func checkAs(countA, sum int) int {
+	if countA == 1 && sum <= 10 {
+		return sum + 11
+	} else {
+		return sum + 1*countA
 	}
-
-	return new_sum
 }
 
-func CheckWinner(hand1, hand2 []Card) (string, int, int) {
+func CheckWinner(hand1, hand2 []deck.Card) (string, int, int) {
 	h1 := 0
 	h2 := 0
 	countH1 := 0

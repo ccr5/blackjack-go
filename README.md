@@ -94,7 +94,19 @@ git clone https://github.com/ccr5/blackjack-go.git
 2. Install <a href="https://linuxhint.com/go-programming-language-ubuntu-2204/">dependencies</a>
 3. Run Blackjack
 ```shell
-cargo run 
+go run main.go
+```
+
+Or install it and run
+```shell
+go install && blackjack-go
+```
+
+#### Tests
+
+To run tests:
+```shell
+go test ./... -v --cover
 ```
 
 <!-- ROADMAP -->

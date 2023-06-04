@@ -1,12 +1,14 @@
-package main
+package player
 
 import (
 	"fmt"
+
+	"github.com/ccr5/blackjack-go/deck"
 )
 
 type Player struct {
 	Name    string
-	Hand    []Card
+	Hand    []deck.Card
 	Balance float64
 	Wins    int
 	Defeats int
@@ -22,13 +24,13 @@ type PlayerType interface {
 	ShowHand()
 }
 
-func (p *Player) AddCardToHand(card Card) (bool, error) {
+func (p *Player) AddCardToHand(card deck.Card) (bool, error) {
 	p.Hand = append(p.Hand, card)
 	return true, nil
 }
 
 func (p *Player) ClearHand() (bool, error) {
-	p.Hand = make([]Card, 0)
+	p.Hand = make([]deck.Card, 0)
 	return true, nil
 }
 

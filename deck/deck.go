@@ -1,6 +1,7 @@
-package main
+package deck
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -10,6 +11,10 @@ type Deck struct {
 }
 
 func (d *Deck) GetCard() (Card, error) {
+	if len(d.deck) == 0 {
+		return Card{}, fmt.Errorf("DECK DOESN'T HAVE CARD YET")
+	}
+
 	card := d.deck[len(d.deck)-1]
 	d.deck = d.deck[:len(d.deck)-1]
 	return card, nil

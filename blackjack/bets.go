@@ -1,4 +1,4 @@
-package main
+package blackjack
 
 type Bets struct {
 	PlayerBetAmount   float64

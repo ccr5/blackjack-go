@@ -1,4 +1,4 @@
-package main
+package player
 
 type Human struct {
 	Player
